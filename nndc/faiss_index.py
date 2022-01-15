@@ -1,37 +1,41 @@
 import faiss
 import numpy as np
+from sklearn.decomposition import KernelPCA
 
 class DCIndex:
     ''' 
     For assigning Pseudo-labels to datapoints in the latent space.
     Builds an In-memory Distance Correlation Index with N datapoints.
     '''
-    def __init__(self, in_dim, num_points, threshold, out_dim=None, use_pca=False, verbose=False):
+    def __init__(self, in_dim, num_points, threshold, out_dim=None, use_pca=False, kernel='rbf', n_jobs=-1, verbose=False):
         '''
         Args:
             in_dim: Dimensionality of the Input vectors
             num_points: Number of vectors in the dataset (used for building the distance matrix)
             threshold: The maximum distance of a vector from a query vector to be considered a neighbour. Note that the "Distance" is actually = 1 - Correlation Distance.
             out_dim: Dimensionality of the projected vectors in the index if using PCA.
-            use_pca: Whether to use PCA or not.
+            use_pca: Whether to use KernelPCA or not.
+            kernel: Kernel to use for KernelPCA. Can be `linear`, `poly`, `rbf`, `sigmoid`, `cosine`, `precomputed`.
+            n_jobs: Number of workers to use for training PCA. Default: use all available cores.
         '''
         self.use_pca = use_pca
         self.num_points = num_points
-        
-        if use_pca:
-            assert not out_dim is None, "Number of PCA components must be specified!"
-
         self.in_dim = in_dim
         self.out_dim = out_dim
         self.threshold = threshold
         self.verbose = verbose
+        self.n_jobs = n_jobs
+        self.kernel = kernel
+
+        if use_pca:
+            assert not out_dim is None, "Number of PCA components must be specified!"
 
         self.init()
 
     def init(self):
         '''Initialize PCA and FAISS Index objects'''
         if self.use_pca:
-            self.pca = faiss.PCAMatrix(self.in_dim, self.out_dim)
+            self.pca = KernelPCA(self.out_dim, kernel=self.kernel, n_jobs=self.n_jobs)
         dset_dim = self.out_dim if not self.out_dim is None else self.in_dim
         # Inner Product Index
         self.index = faiss.IndexFlatIP(dset_dim)
@@ -51,7 +55,7 @@ class DCIndex:
         data = data - data.mean(axis=1).reshape(-1, 1)
         faiss.normalize_L2(data)
 
-        self.pca.train(data)
+        self.pca.fit(data)
         
         self.pca_train_data = []
         self.is_trained = True
@@ -93,7 +97,7 @@ class DCIndex:
         if self.use_pca:
             assert self.is_trained, "PCA must be trained before adding vectors to the Index!"
             self.index.add(
-                self.pca.apply_py(
+                self.pca.transform(
                     x
                 )
             )
