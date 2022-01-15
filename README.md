@@ -6,6 +6,9 @@ Assign Pseudo class labels to datapoints in the latent space.
 - NNDC transforms the space such that the Inner Product Index in FAISS (IndexFlatIP) computes the [Distance Correlation](https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.correlation.html).
 - Support for KernelPCA (non-linear PCA) for dimensionality reduction.
 
+## Installation
+`pip install git+https://github.com/The-Learning-Machines/nndc`
+
 ## Usage
 ```python
 dim = 128 
