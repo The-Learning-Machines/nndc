@@ -18,13 +18,13 @@ import nndc
 import numpy as np
 
 index = nndc.DCIndex(
-    in_dim=dim, 
-    num_points=n, 
-    threshold=0.2, 
-    out_dim=32, 
-    use_pca=True, 
+    in_dim=dim, # Dimensionality of the input vectors
+    num_points=n, # Number of vectors in the dataset
+    threshold=0.2, # How far away from a vector is the neighbourhood
+    out_dim=32, # Dimensionality of the vectors after PCA (only needed if using PCA)
+    use_pca=True, # Use KernelPCA
     verbose=True,
-    kernel="rbf"
+    kernel="rbf" # Use Radial Basis Function as the kernel for KernelPCA
 )
 
 # Generate Random data
