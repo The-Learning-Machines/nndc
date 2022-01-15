@@ -8,7 +8,7 @@ import nndc
 import numpy as np
 
 def test_dc():
-    index = nndc.DCIndex(in_dim=dim, num_points=n, threshold=0.2, out_dim=32, use_pca=True, verbose=True)
+    index = nndc.DCIndex(in_dim=dim, threshold=0.2, out_dim=32, use_pca=True, verbose=True)
 
     np.random.seed(1234)             
     xb = np.random.random((n, dim)).astype('float32')

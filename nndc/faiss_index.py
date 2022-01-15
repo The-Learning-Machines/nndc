@@ -7,11 +7,10 @@ class DCIndex:
     For assigning Pseudo-labels to datapoints in the latent space.
     Builds an In-memory Distance Correlation Index with N datapoints.
     '''
-    def __init__(self, in_dim, num_points, threshold, out_dim=None, use_pca=False, kernel='rbf', n_jobs=-1, verbose=False):
+    def __init__(self, in_dim, threshold, out_dim=None, use_pca=False, kernel='rbf', n_jobs=-1, verbose=False):
         '''
         Args:
             in_dim: Dimensionality of the Input vectors
-            num_points: Number of vectors in the dataset (used for building the distance matrix)
             threshold: The maximum distance of a vector from a query vector to be considered a neighbour. Note that the "Distance" is actually = 1 - Correlation Distance.
             out_dim: Dimensionality of the projected vectors in the index if using PCA.
             use_pca: Whether to use KernelPCA or not.
@@ -19,7 +18,6 @@ class DCIndex:
             n_jobs: Number of workers to use for training PCA. Default: use all available cores.
         '''
         self.use_pca = use_pca
-        self.num_points = num_points
         self.in_dim = in_dim
         self.out_dim = out_dim
         self.threshold = threshold
@@ -111,9 +109,9 @@ class DCIndex:
         '''
         Builds a Dictionary[ID, (Neigoubourhood IDs, Distances)]
         '''
-        vectors = self.index.reconstruct_n(0, self.num_points)
+        vectors = self.index.reconstruct_n(0, self.counter)
         lim, D, I = self.index.range_search(vectors, self.threshold)
-        for i in range(self.num_points):
+        for i in range(self.counter):
             transformed_ids = np.array([self.inner_id_to_outer_id[inner_id] for inner_id in I[lim[i]:lim[i+1]]])
             self.id_to_neighbour[self.inner_id_to_outer_id[i]] = (transformed_ids, D[lim[i]:lim[i+1]])
 

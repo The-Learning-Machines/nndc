@@ -19,7 +19,6 @@ import numpy as np
 
 index = nndc.DCIndex(
     in_dim=dim, # Dimensionality of the input vectors
-    num_points=n, # Number of vectors in the dataset
     threshold=0.2, # How far away from a vector is the neighbourhood
     out_dim=32, # Dimensionality of the vectors after PCA (only needed if using PCA)
     use_pca=True, # Use KernelPCA
